@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+}
+
+apply plugin: 'application'
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation group: 'com.squareup', name: 'gifencoder', version: '0.10.1'
+}
+
+application {
+    mainClassName = 'Main'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+    }
+}
