@@ -8,6 +8,7 @@ import SceneData.Surface.Material.Phong;
 import SceneData.Surface.Surface;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class RayTracer {
 
@@ -36,7 +37,7 @@ public class RayTracer {
         }
 
         //go through each pixel in the image, get the pixel color and save it in the image array
-        for(int y = 0; y < height; y++){
+        IntStream.range(0, height).parallel().forEach((y) -> {
             for(int x = 0; x < width; x++) {
                 MyColor color = new MyColor();
                 //if super sampling is enabled, cast 25 rays per pixel and take the average of the colors
@@ -54,7 +55,8 @@ public class RayTracer {
                 }
                 image[(height-1)-y][x] = color;
             }
-        }
+        });
+
         return image;
     }
 
