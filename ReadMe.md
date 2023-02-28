@@ -1,1 +1,0 @@
-# RayTracer in Java

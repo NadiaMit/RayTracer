@@ -10,6 +10,7 @@ import SceneData.DataTypes.MyPoint;
 import SceneData.Scene;
 import SceneData.Surface.Sphere;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -92,11 +93,12 @@ public class Main {
     }
 
     /**
-     * creates all the scenes
+     * creates all the scenes (all xml files saved in the scene folder)
      */
     private static void createAllScenes() {
-        for(int i = 1; i <=8; i++){
-            filePath = getFilePath("example" + i);
+        ArrayList<String> allFiles = getAllXMLFiles(SCENE_PATH);
+        for(String file : allFiles){
+            filePath = SCENE_PATH + file;
 
             try {
                 developeScene();
@@ -251,7 +253,7 @@ public class Main {
     private static void printInstructions(){
         System.out.println("\nCommands:"+
                 "\n- Type in the scene name of the scene file (e.g.: example1, example2)" +
-                "\n- To create all scenes (example1 - example8), type in 'all'" +
+                "\n- To create all scenes (all xml files saved in the scene folder), type in 'all'" +
                 "\n- To create an animation, type in 'animation'" +
                 "\n- To create a scene with motion blur, type in 'motionblur'" +
                 "\n- To create a scene with a spotlight, type in 'spotlight'" +
@@ -279,4 +281,16 @@ public class Main {
     private static String getFilePath(String userInput){
         return SCENE_PATH + userInput.replace(" ", "") + ".xml";
     }
+
+    public static ArrayList<String> getAllXMLFiles(final String folderName) {
+        File folder = new File(folderName);
+        ArrayList<String> allFiles = new ArrayList<>();
+        for (final File fileEntry : folder.listFiles()) {
+            if (fileEntry.isFile() && fileEntry.getName().contains(".xml")) {
+                allFiles.add(fileEntry.getName());
+            }
+        }
+        return allFiles;
+    }
+
 }
