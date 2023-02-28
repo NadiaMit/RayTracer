@@ -46,6 +46,10 @@ public class Scene {
         return outputFileName;
     }
 
+    public String getSceneName(){
+        return outputFileName.substring(0, outputFileName.lastIndexOf('.'));
+    }
+
     public List<Surface> getSurfaces(){
         return surfaces;
     }

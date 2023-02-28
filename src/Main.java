@@ -19,6 +19,8 @@ public class Main {
     final static String OUTPUT_PATH = "outputPictures/";
     final static Scanner inputScanner = new Scanner(System.in);
     private static boolean superSampling = false;
+    private static boolean animation = false;
+    private static boolean motionBlur = false;
     private static XMLReader xmlReader;
     private static PNGConverter pngConverter;
     private static RayTracer rayTracer;
@@ -44,25 +46,33 @@ public class Main {
                 continue;
             }
 
-            if(userInput.length > 1 && userInput[1].equalsIgnoreCase("supersampling")){
-                superSampling = true;
+            if(userInput.length > 1){
+                switch (userInput[1]){
+                    case "supersampling" -> superSampling = true;
+                    case "animation" -> animation = true;
+                    case "motionblur" -> motionBlur = true;
+                }
             }
             else{
                 superSampling = false;
+                animation = false;
+                motionBlur = false;
             }
             
             switch (userInput[0]){
                 case "all" -> createAllScenes();
-                case "animation" -> createAnimation();
-                case "motionblur" -> createMotionBlur();
-                case "spotlight" -> createSpotlight();
                 case "exit" -> System.out.println("Exiting...");
                 case "help" -> printInstructions();
                 default -> {
                     filePath = getFilePath(userInput[0]);
 
                     try {
-                        developeScene();
+                        if(animation)
+                            createAnimation();
+                        else if(motionBlur)
+                            createMotionBlur();
+                        else
+                            developeScene();
 
                     } catch (XMLReaderException | PNGConverterException e) {
                         System.out.println(e.getMessage());
@@ -81,7 +91,6 @@ public class Main {
      * @throws PNGConverterException if the png image could not be created
      */
     private static void developeScene() throws XMLReaderException, PNGConverterException{
-        scene.clear();
         //read the scene xml file and create a scene object
         scene = xmlReader.readXML(filePath, SCENE_PATH);
         System.out.println("\nScene '" + filePath + "' read sucessfully!");
@@ -101,25 +110,16 @@ public class Main {
             filePath = SCENE_PATH + file;
 
             try {
-                developeScene();
+                if(animation)
+                    createAnimation();
+                else if(motionBlur)
+                    createMotionBlur();
+                else
+                    developeScene();
 
             } catch (XMLReaderException | PNGConverterException e) {
                 System.out.println(e.getMessage());
             }
-        }
-    }
-
-    /**
-     * creates an image with a spotlight
-     */
-    private static void createSpotlight() {
-        filePath = getFilePath("spotlight");
-
-        try {
-            developeScene();
-
-        } catch (XMLReaderException | PNGConverterException e) {
-            System.out.println(e.getMessage());
         }
     }
 
@@ -132,9 +132,9 @@ public class Main {
         scene.clear();
         try {
             //read the scene xml file and create a scene object
-            scene = xmlReader.readXML(SCENE_PATH + "motionBlur.xml", SCENE_PATH);
+            scene = xmlReader.readXML(filePath, SCENE_PATH);
 
-            System.out.println("Creating motion blur...");
+            System.out.println("\nCreating motion blur...");
 
             //move the spheresdown
             for(int i = 3; i >=1; i--){
@@ -154,7 +154,7 @@ public class Main {
             }
 
             //reset the spheres to their original position
-            scene = xmlReader.readXML(SCENE_PATH + "motionBlur.xml", SCENE_PATH);
+            scene = xmlReader.readXML(filePath, SCENE_PATH);
 
             //move the spheres up
             for(int i = 1; i <= 3; i++){
@@ -188,7 +188,7 @@ public class Main {
             }
 
             //create a png image of the final image
-            pngConverter.createPNG(finalImage, OUTPUT_PATH + scene.getOutputFileName());
+            pngConverter.createPNG(finalImage, OUTPUT_PATH + scene.getSceneName() + "_motionblur.png");
         }
         catch (XMLReaderException | PNGConverterException e) {
             System.out.println(e.getMessage());
@@ -207,18 +207,18 @@ public class Main {
         scene.clear();
         try {
             //read the scene xml file and create a scene object
-            scene = xmlReader.readXML(SCENE_PATH + "example2.xml", SCENE_PATH);
+            scene = xmlReader.readXML(filePath, SCENE_PATH);
 
-            System.out.println("Creating animation...");
+            System.out.println("\nCreating animation...");
 
             //shrink the spheres
             for(int i = 5; i >=1; i--){
-                float finalI = i * 0.1f;
+                float finalI = i==5 ? i * -0.1f : 0.1f;
 
                 scene.getSurfaces().forEach(surface -> {
                     if(surface instanceof Sphere){
                         Sphere sphere = (Sphere) surface;
-                        sphere.setRadius(sphere.getRadius() - finalI);
+                        sphere.setRadius(sphere.getRadius() + finalI);
                     }
                 });
                 //ray trace the scene and add the image to the list
@@ -226,7 +226,7 @@ public class Main {
             }
 
             //reset the scene
-            scene = xmlReader.readXML(SCENE_PATH + "example2.xml", SCENE_PATH);
+            scene = xmlReader.readXML(filePath, SCENE_PATH);
 
             //grow the spheres
             for(int i = 1; i <= 5; i++){
@@ -243,7 +243,7 @@ public class Main {
             }
 
             //create a gif image with the images list
-            gifWriter.createGIF(images, OUTPUT_PATH + "animation.gif", scene.getCamera().getWidth(), scene.getCamera().getHeight());
+            gifWriter.createGIF(images, OUTPUT_PATH + scene.getSceneName()+"_animation.gif", scene.getCamera().getWidth(), scene.getCamera().getHeight());
         }
         catch (XMLReaderException | GIFWrtierException e) {
             System.out.println(e.getMessage());
@@ -254,10 +254,9 @@ public class Main {
         System.out.println("\nCommands:"+
                 "\n- Type in the scene name of the scene file (e.g.: example1, example2)" +
                 "\n- To create all scenes (all xml files saved in the scene folder), type in 'all'" +
-                "\n- To create an animation, type in 'animation'" +
-                "\n- To create a scene with motion blur, type in 'motionblur'" +
-                "\n- To create a scene with a spotlight, type in 'spotlight'" +
-                "\n- To create a scene with super sampling, type in 'sceneName/all -supersampling'" +
+                "\n- To create a scene with animation (only spheres), type in '<sceneName/all> -animation'" +
+                "\n- To create a scene with motion blur (only spheres), type in '<sceneName/all> -motionblur'" +
+                "\n- To create a scene with super sampling, type in '<sceneName/all> -supersampling'" +
                 "\n- To see the instructions again, type in 'help'"+
                 "\n- To exit, type in 'exit'."
         );
@@ -282,7 +281,12 @@ public class Main {
         return SCENE_PATH + userInput.replace(" ", "") + ".xml";
     }
 
-    public static ArrayList<String> getAllXMLFiles(final String folderName) {
+    /**
+     * Returns all the xml files in the scene folder
+     * @param folderName the folder name
+     * @return all the xml files in the scene folder as an ArrayList
+     */
+    private static ArrayList<String> getAllXMLFiles(final String folderName) {
         File folder = new File(folderName);
         ArrayList<String> allFiles = new ArrayList<>();
         for (final File fileEntry : folder.listFiles()) {
@@ -292,5 +296,4 @@ public class Main {
         }
         return allFiles;
     }
-
 }
