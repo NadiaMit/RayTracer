@@ -17,7 +17,7 @@ public class RayTracer {
     /**
      * Ray traces the scene and returns a 2D array of {@link MyColor}
      * @param scene the scene to ray trace
-     * @param superSampling whether or not to use super sampling
+     * @param superSampling whether to use super sampling or not
      * @return a 2D array of {@link MyColor}
      */
     public MyColor[][] rayTrace(Scene scene, boolean superSampling) {

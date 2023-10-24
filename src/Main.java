@@ -252,13 +252,13 @@ public class Main {
 
     private static void printInstructions(){
         System.out.println("\nCommands:"+
-                "\n- Type in the scene name of the scene file (e.g.: example1, example2)" +
-                "\n- To create all scenes (all xml files saved in the scene folder), type in 'all'" +
-                "\n- To create a scene with animation (only spheres), type in '<sceneName/all> -animation'" +
-                "\n- To create a scene with motion blur (only spheres), type in '<sceneName/all> -motionblur'" +
-                "\n- To create a scene with super sampling, type in '<sceneName/all> -supersampling'" +
-                "\n- To see the instructions again, type in 'help'"+
-                "\n- To exit, type in 'exit'."
+                "\n- <sceneName> -> raytrace the selected scene from the scenes' folder (e.g. 'example1', 'example2')" +
+                "\n- 'all' -> creates all scenes (all .xml files saved in the scene folder)" +
+                "\n- '<sceneName/all> -animation' -> adds animation (only spheres) to the selected scene/all scenes" +
+                "\n- '<sceneName/all> -motionblur' -> adds motion blur (only spheres) to the selected scene/all scenes" +
+                "\n- '<sceneName/all> -supersampling' -> creates a scene using super sampling (shooting 25 rays through one pixel instead of just one)" +
+                "\n- 'help' -> prints the commands again"+
+                "\n- 'exit' -> exit the program"
         );
     }
 
